@@ -47,18 +47,29 @@ pub enum KeychainErrorCode {
     UnknownStatusCode(i32),
 }
 
+impl fmt::Display for KeychainErrorCode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use self::KeychainErrorCode::*;
+        match *self {
+            UnknownStatusCode(code) => write!(f, "{}", code),
+            _ => write!(f, "{:?}", self),
+        }
+    }
+}
+
 impl From<OSStatus> for KeychainErrorCode {
     fn from(status: OSStatus) -> KeychainErrorCode {
+        use self::KeychainErrorCode::*;
         if status == errSecAuthFailed {
-            KeychainErrorCode::AuthFailed
+            AuthFailed
         } else if status == errSecDuplicateItem {
-            KeychainErrorCode::DuplicateItem
+            DuplicateItem
         } else if status == errSecItemNotFound {
-            KeychainErrorCode::ItemNotFound
+            ItemNotFound
         } else if status == errSecInvalidOwnerEdit {
-            KeychainErrorCode::InvalidOwnerEdit
+            InvalidOwnerEdit
         } else {
-            KeychainErrorCode::UnknownStatusCode(status)
+            UnknownStatusCode(status)
         }
     }
 }
@@ -96,7 +107,7 @@ impl fmt::Display for KeychainError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "Keychain error: {} (status: {:?})",
+            "Keychain error: {} (status: {})",
             self.message,
             self.status
         )
