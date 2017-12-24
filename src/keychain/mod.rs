@@ -189,7 +189,8 @@ pub fn add_generic_password(service: &str, account: &Account) -> Result<()> {
 ///
 /// # Errors
 ///
-/// This function should not fail unless keychain unlocking fails.
+/// This function will fail with `KeychainErrorCode::ItemNotFound` if no
+/// generic passwords exist for the given `service`.
 pub fn delete_generic_passwords_by_service(service: &str) -> Result<()> {
     unsafe {
         let cf_service = CFStringCreateWithBytesNoCopy(
