@@ -12,6 +12,8 @@
 // License for the specific language governing permissions and limitations under
 // the License.
 
+#![deny(warnings)]
+
 #[cfg(target_os = "macos")]
 mod keychain;
 
