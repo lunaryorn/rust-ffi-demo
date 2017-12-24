@@ -38,6 +38,8 @@ pub enum KeychainErrorCode {
     DuplicateItem,
     /// The item cannot be found.
     ItemNotFound,
+    /// An invalid attempt to change the owner of an item
+    InvalidOwnerEdit,
     /// An unknown keychain error code.
     ///
     /// This API wraps only common status codes; uncommon status codes end up
@@ -53,6 +55,8 @@ impl From<OSStatus> for KeychainErrorCode {
             KeychainErrorCode::DuplicateItem
         } else if status == errSecItemNotFound {
             KeychainErrorCode::ItemNotFound
+        } else if status == errSecInvalidOwnerEdit {
+            KeychainErrorCode::InvalidOwnerEdit
         } else {
             KeychainErrorCode::UnknownStatusCode(status)
         }
