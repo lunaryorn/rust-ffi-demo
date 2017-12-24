@@ -139,7 +139,7 @@ pub fn add_generic_password(service: &str, account: &Account) -> Result<()> {
             kCFStringEncodingUTF8,
             false as u8,
             kCFAllocatorNull,
-        );
+        ) as CFTypeRef;
         assert!(!cf_service.is_null());
         let cf_account = CFStringCreateWithBytesNoCopy(
             ptr::null_mut(),
@@ -148,37 +148,34 @@ pub fn add_generic_password(service: &str, account: &Account) -> Result<()> {
             kCFStringEncodingUTF8,
             false as u8,
             kCFAllocatorNull,
-        );
+        ) as CFTypeRef;
         assert!(!cf_account.is_null());
         let cf_password = CFDataCreateWithBytesNoCopy(
             ptr::null_mut(),
             account.password.as_ptr(),
             account.password.len() as i64,
             kCFAllocatorNull,
-        );
+        ) as CFTypeRef;
         assert!(!cf_password.is_null());
 
-        let mut keys = [
-            kSecClass as CFTypeRef,
-            kSecAttrService as CFTypeRef,
-            kSecAttrAccount as CFTypeRef,
-            kSecValueData as CFTypeRef,
+        let items = [
+            (
+                kSecClass as CFTypeRef,
+                kSecClassGenericPassword as CFTypeRef,
+            ),
+            (kSecAttrService as CFTypeRef, cf_service),
+            (kSecAttrAccount as CFTypeRef, cf_account),
+            (kSecValueData as CFTypeRef, cf_password),
         ];
-        let mut values = [
-            kSecClassGenericPassword as CFTypeRef,
-            cf_service as CFTypeRef,
-            cf_account as CFTypeRef,
-            cf_password as CFTypeRef,
-        ];
-        let attributes = create_dictionary(&mut keys, &mut values);
+        let attributes = create_dictionary(&items);
         assert!(!attributes.is_null());
 
         let status = SecItemAdd(attributes, ptr::null_mut());
 
         CFRelease(attributes as CFTypeRef);
-        CFRelease(cf_service as CFTypeRef);
-        CFRelease(cf_account as CFTypeRef);
-        CFRelease(cf_password as CFTypeRef);
+        CFRelease(cf_service);
+        CFRelease(cf_account);
+        CFRelease(cf_password);
 
         status_to_result(status)
     }
@@ -198,21 +195,23 @@ pub fn delete_generic_passwords_by_service(service: &str) -> Result<()> {
             kCFStringEncodingUTF8,
             false as u8,
             kCFAllocatorNull,
-        );
+        ) as CFTypeRef;
         assert!(!cf_service.is_null());
 
-        let mut keys = [kSecClass as CFTypeRef, kSecAttrService as CFTypeRef];
-        let mut values = [
-            kSecClassGenericPassword as CFTypeRef,
-            cf_service as CFTypeRef,
+        let items = [
+            (
+                kSecClass as CFTypeRef,
+                kSecClassGenericPassword as CFTypeRef,
+            ),
+            (kSecAttrService as CFTypeRef, cf_service),
         ];
-        let query = create_dictionary(&mut keys, &mut values);
+        let query = create_dictionary(&items);
         assert!(!query.is_null());
 
         let status = SecItemDelete(query);
 
         CFRelease(query as CFTypeRef);
-        CFRelease(cf_service as CFTypeRef);
+        CFRelease(cf_service);
 
         status_to_result(status)
     }
@@ -233,30 +232,29 @@ pub fn find_generic_password_by_service(service: &str) -> Result<Account> {
             kCFStringEncodingUTF8,
             false as u8,
             kCFAllocatorNull,
-        );
+        ) as CFTypeRef;
         assert!(!cf_service.is_null());
 
-        let mut keys = [
-            kSecClass as CFTypeRef,
-            kSecAttrService as CFTypeRef,
-            kSecMatchLimit as CFTypeRef,
-            kSecReturnAttributes as CFTypeRef,
-            kSecReturnData as CFTypeRef,
+        let items = [
+            (
+                kSecClass as CFTypeRef,
+                kSecClassGenericPassword as CFTypeRef,
+            ),
+            (kSecAttrService as CFTypeRef, cf_service),
+            (kSecMatchLimit as CFTypeRef, kSecMatchLimitOne as CFTypeRef),
+            (
+                kSecReturnAttributes as CFTypeRef,
+                kCFBooleanTrue as CFTypeRef,
+            ),
+            (kSecReturnData as CFTypeRef, kCFBooleanTrue as CFTypeRef),
         ];
-        let mut values = [
-            kSecClassGenericPassword as CFTypeRef,
-            cf_service as CFTypeRef,
-            kSecMatchLimitOne as CFTypeRef,
-            kCFBooleanTrue as CFTypeRef,
-            kCFBooleanTrue as CFTypeRef,
-        ];
-        let query = create_dictionary(&mut keys, &mut values);
+        let query = create_dictionary(&items);
         assert!(!query.is_null());
 
         let mut result: CFTypeRef = ptr::null();
         let status = SecItemCopyMatching(query, &mut result);
 
-        CFRelease(cf_service as CFTypeRef);
+        CFRelease(cf_service);
         CFRelease(query as CFTypeRef);
 
         status_to_result(status)?;

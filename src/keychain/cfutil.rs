@@ -45,27 +45,21 @@ pub unsafe fn vec_from_cfdata(cfdata: CFDataRef) -> Vec<u8> {
     std::slice::from_raw_parts(CFDataGetBytePtr(cfdata), CFDataGetLength(cfdata) as usize).into()
 }
 
-/// Create a `CFDictionary` from keys and values.
+/// Create a `CFDictionary` from items.
 ///
 /// # Safety
 ///
-/// `keys` and `values` must have the same length, obviously. `keys` and
-/// `values` must have types as expected by whoever uses the dictionary; they
+/// `items` must have types as expected by whoever uses the dictionary; they
 /// must also only contain CoreFoundation types!
 ///
-/// The function does not modify `keys` and `values`, but requires mutable
-/// references because the underlying API uses mutable pointers.
-///
 /// The caller must call `CFRelease` on the returned dictionary.
-pub unsafe fn create_dictionary(
-    keys: &mut [CFTypeRef],
-    values: &mut [CFTypeRef],
-) -> CFDictionaryRef {
-    assert!(keys.len() == values.len());
+pub unsafe fn create_dictionary(items: &[(CFTypeRef, CFTypeRef)]) -> CFDictionaryRef {
+    let mut keys: Vec<CFTypeRef> = items.iter().map(|i| i.0).collect();
+    let mut values: Vec<CFTypeRef> = items.iter().map(|i| i.1).collect();
     CFDictionaryCreate(
         std::ptr::null_mut(),
-        keys.as_mut_ptr(),
-        values.as_mut_ptr(),
+        (&mut keys).as_mut_ptr(),
+        (&mut values).as_mut_ptr(),
         keys.len() as i64,
         &kCFTypeDictionaryKeyCallBacks,
         &kCFTypeDictionaryValueCallBacks,
