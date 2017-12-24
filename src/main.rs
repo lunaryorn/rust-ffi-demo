@@ -33,4 +33,8 @@ fn main() {
         "Get: {:?}",
         keychain::find_generic_password_by_service(service)
     );
+    println!(
+        "Cleanup: {:?}",
+        keychain::delete_generic_passwords_by_service(service)
+    );
 }
