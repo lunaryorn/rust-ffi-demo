@@ -1,0 +1,11 @@
+[package]
+name = "rust-ffi-demo"
+description = "FFI demo with bindgen to access the macOS keychain"
+version = "0.1.0"
+license = "Apache-2.0"
+repository = "https://github.com/lunaryorn/rust-ffi-demo"
+publish = false
+authors = ["Sebastian Wiesner <sebastian@swsnr.de>"]
+
+[build-dependencies]
+bindgen = "^0.32"
