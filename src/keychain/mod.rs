@@ -70,6 +70,24 @@ pub struct KeychainError {
     pub message: String,
 }
 
+impl From<OSStatus> for KeychainError {
+    /// Creates a `KeychainError` from an `OSStatus` value.
+    ///
+    /// Gets the error message from the system.
+    fn from(status: OSStatus) -> KeychainError {
+        let message = unsafe {
+            let cf_message = SecCopyErrorMessageString(status, ptr::null_mut());
+            let s = string_from_cf_string(cf_message);
+            CFRelease(cf_message as CFTypeRef);
+            s
+        };
+        KeychainError {
+            status: status.into(),
+            message,
+        }
+    }
+}
+
 impl fmt::Display for KeychainError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
@@ -78,22 +96,6 @@ impl fmt::Display for KeychainError {
             self.message,
             self.status
         )
-    }
-}
-
-impl KeychainError {
-    /// Create a keychain error from a status code.
-    ///
-    /// Use `SecCopyErrorMessageString` to obtain the system’s error message
-    /// for the given `status`.
-    unsafe fn from_os_status(status: OSStatus) -> KeychainError {
-        let cf_message = SecCopyErrorMessageString(status, ptr::null_mut());
-        let message = string_from_cf_string(cf_message);
-        CFRelease(cf_message as native::CFTypeRef);
-        KeychainError {
-            status: status.into(),
-            message,
-        }
     }
 }
 
@@ -115,7 +117,7 @@ fn status_to_result(status: OSStatus) -> Result<()> {
     if status == errSecSuccess {
         Ok(())
     } else {
-        unsafe { Err(KeychainError::from_os_status(status)) }
+        Err(status.into())
     }
 }
 
