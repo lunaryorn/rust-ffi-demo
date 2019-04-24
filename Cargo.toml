@@ -6,6 +6,7 @@ license = "Apache-2.0"
 repository = "https://github.com/lunaryorn/rust-ffi-demo"
 publish = false
 authors = ["Sebastian Wiesner <sebastian@swsnr.de>"]
+edition = "2018"
 
 [build-dependencies]
 bindgen = "^0.32"
