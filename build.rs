@@ -39,9 +39,6 @@ fn main() {
             .whitelist_function("CFTypeRef")
             // Base types
             .whitelist_type("OSStatus")
-            // Link against necessary frameworks
-            .link_framework("Security")
-            .link_framework("CoreFoundation")
             .generate()
             .expect("Unable to generate bindings");
 

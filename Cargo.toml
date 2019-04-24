@@ -9,4 +9,4 @@ authors = ["Sebastian Wiesner <sebastian@swsnr.de>"]
 edition = "2018"
 
 [build-dependencies]
-bindgen = "^0.32"
+bindgen = "^0.49"
