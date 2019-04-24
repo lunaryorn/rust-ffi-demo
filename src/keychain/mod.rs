@@ -48,7 +48,7 @@ pub enum KeychainErrorCode {
 }
 
 impl fmt::Display for KeychainErrorCode {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::KeychainErrorCode::*;
         match *self {
             UnknownStatusCode(code) => write!(f, "{}", code),
@@ -104,7 +104,7 @@ impl From<OSStatus> for KeychainError {
 }
 
 impl fmt::Display for KeychainError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
             "Keychain error: {} (status: {})",
